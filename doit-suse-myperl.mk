@@ -8,6 +8,7 @@
 #
 
 VAGDIR	= $(HOME)/git/vagrant/suse
+VAGINST = build
 
 .PHONY: doit
 
@@ -15,7 +16,10 @@ doit: vag-rebuild git-clone myperl mysql oxideps oxi qs
 
 include incl/vagrant-tasks.mk
 
-vag-rebuild: vag-rebuild-build
+prereqs:
+	cd $(VAGDIR) && $(MAKE) xml
+
+vag-rebuild: prereqs vag-rebuild-build
 
 git-clone:
 	cd $(VAGDIR) && \
@@ -106,8 +110,11 @@ ssh:
 	cd $(VAGDIR) && \
 		vagrant ssh build
 
-.PHONY:
-makefile-local: Makefile.local $(VAGDIR)/build.sshcfg
+.PHONY: cp-makefile-local makefile-local
+
+makefile-local: $(if $(wildcard Makefile.local),cp-makefile-local,)
+
+cp-makefile-local: Makefile.local $(VAGDIR)/build.sshcfg
 	scp -F $(VAGDIR)/build.sshcfg $< build:git/openxpki/package/debian/
 
 

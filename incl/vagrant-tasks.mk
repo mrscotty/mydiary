@@ -6,6 +6,17 @@ ifndef VAGDIR
 	VAGDIR = $(PWD)
 endif
 
+ifndef VAGINST
+	VAGINST = default
+endif
+
+SSHCFG = $(VAGDIR)/$(VAGINST).sshcfg
+SSHOPT = -F $(SSHCFG)
+DEVUSER = vagrant
+DEVROOT = vagrant
+SUDO = sudo
+DEVHOST = $(VAGINST)
+
 $(VAGDIR)/%.sshcfg:
 	(cd $(VAGDIR) && vagrant ssh-config $*) > $@.tmp
 	mv $@.tmp $@
