@@ -17,7 +17,7 @@ DEVROOT = vagrant
 SUDO = sudo
 DEVHOST = $(VAGINST)
 
-$(VAGDIR)/%.sshcfg:
+$(VAGDIR)/%.sshcfg: $(VAGDIR)/machines/%/$(VAGPROV)/id
 	(cd $(VAGDIR) && vagrant ssh-config $*) > $@.tmp
 	mv $@.tmp $@
 
@@ -25,9 +25,12 @@ vag-halt-%:
 	cd $(VAGDIR) && \
 		vagrant halt -f $*
 
-vag-up-%:
+$(VAGDIR)/machines/%/$(VAGPROV)/id:
+	echo "'vagrant up $*' creates $@"
 	cd $(VAGDIR) && \
 		vagrant up $*
+
+vag-up-%: $(VAGDIR)/machines/%/$(VAGPROV)/id
 
 vag-ssh-%: $(VAGDIR)/%.sshcfg
 	ssh -F $< $*
