@@ -60,6 +60,9 @@ RPMS := \
 	myperl-openxpki-core-deps-$(OXI_VERSION)-1.x86_64.rpm \
 	myperl-openxpki-core-$(OXI_VERSION)-1.x86_64.rpm
 
+.PHONY: rpms
+rpms: $(RPMS)
+
 .PHONY: doit
 
 doit: clean git-rsync myperl oracle inst-oracle oxideps oxi
@@ -78,13 +81,13 @@ prereqs-deprecated:
 git-rsync: git-rsync-myperl git-rsync-openxpki git-rsync-keynanny
 
 git-rsync-myperl: $(SSHCFG)
-	rsync -av -e "ssh $(SSHOPT) -l $(DEVUSER)" $(MYPERL_SRCDIR) $(DEVHOST):git/
+	rsync -a -e "ssh $(SSHOPT) -l $(DEVUSER)" $(MYPERL_SRCDIR) $(DEVHOST):git/
 
 git-rsync-openxpki: $(SSHCFG)
-	rsync -av -e "ssh $(SSHOPT) -l $(DEVUSER)" $(OXI_SRCDIR) $(DEVHOST):git/
+	rsync -a -e "ssh $(SSHOPT) -l $(DEVUSER)" $(OXI_SRCDIR) $(DEVHOST):git/
 
 git-rsync-keynanny: $(SSHCFG)
-	rsync -av -e "ssh $(SSHOPT) -l $(DEVUSER)" $(KEYNANNY_SRCDIR) $(DEVHOST):git/
+	rsync -a -e "ssh $(SSHOPT) -l $(DEVUSER)" $(KEYNANNY_SRCDIR) $(DEVHOST):git/
 
 git-pull:
 	cd $(OXI_SRCDIR) && git pull --ff-only
@@ -105,7 +108,7 @@ keynanny: $(SSHCFG)
 #	ssh -l root $(DEVHOST) \
 #		"rpm -e KeyNanny; rpm -i ~$(DEVUSER)/git/KeyNanny/KeyNanny-*.x86_64.rpm"
 
-myperl-dbd-mysql: $(SSHCFG)
+myperl-dbd-mysql myperl-apache-mod-perl: $(SSHCFG)
 	ssh $(SSHOPT) -l $(DEVUSER) $(DEVHOST) \
 		"cd ~/git/openxpki/package/suse/$@ && make"
 
