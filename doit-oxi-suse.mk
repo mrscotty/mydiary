@@ -2,6 +2,7 @@
 #
 # Build myperl and openxpki (incl. dependencies) for SuSE SLES 11
 #
+#
 # USEFUL TARGETS:
 #
 #	# prereqs only needed first time
@@ -47,8 +48,8 @@ DEVROOT=root
 # Include file must define DEVHOST, DEVUSER and ETCDIR.
 # Include file may define VAGDIR
 
--include Makefile.doit-oxi-suse.cust
--include Makefile.doit-oxi-suse.local
+-include Makefile.build-oxi-suse.cust
+-include Makefile.build-oxi-suse.local
 
 ifdef VAGDIR
 	include incl/vagrant-tasks.mk
@@ -60,12 +61,24 @@ RPMS := \
 	myperl-openxpki-core-deps-$(OXI_VERSION)-1.x86_64.rpm \
 	myperl-openxpki-core-$(OXI_VERSION)-1.x86_64.rpm
 
+.PHONY: info
+
+info:
+	@echo "*** NO TARGET SPECIFIED ***"
+	@echo 
+	@echo "DEBUG INFO:"
+	@echo
+	@echo "VAGDIR=$(VAGDIR)"
+	@echo "DEVHOST=$(DEVHOST)"
+	@echo "DEVUSER=$(DEVUSER)"
+	@echo "DEVROOT=$(DEVROOT)"
+
 .PHONY: rpms
 rpms: $(RPMS)
 
-.PHONY: doit
+.PHONY: build
 
-doit: clean git-rsync myperl oracle inst-oracle oxideps oxi
+build: clean git-rsync myperl oracle inst-oracle oxideps oxi
 
 prereqs: $(SSHCFG)
 	(echo "%packager <$GIT_AUTHOR_NAME>" ; \
@@ -144,9 +157,21 @@ oxi: $(SSHCFG)
 
 fetch: $(RPMS)
 
-clean: $(SSHCFG)
+clean: clean-remote clean-local
+
+clean-remote: $(SSHCFG)
 	ssh $(SSHOPT) -l $(DEVUSER) $(DEVHOST) \
 		"rm -rf rpmbuild/BUILD/*perl* .cpanm/work/*"
+
+.PHONY: clean-local
+
+clean-local:
+	rm -rf $(RPMS)
+
+.PHONY: destroy
+
+destroy: $(if $(VAGDIR),vag-destroy-$(DEVHOST),) clean-local
+#	$(MAKE) -f $(word $(words $(MAKEFILE_LIST)), $(MAKEFILE_LIST)) clean-local
 
 ############################################################
 # Stuff behind here might not be tested

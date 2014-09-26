@@ -35,9 +35,13 @@ vag-up-%: $(VAGDIR)/machines/%/$(VAGPROV)/id
 vag-ssh-%: $(VAGDIR)/%.sshcfg
 	ssh -F $< $*
 
-vag-rebuild-%: vag-clean-%
+.PHONY: vag-destroy-%
+
+vag-destroy-%: vag-clean-%
 	cd $(VAGDIR) && \
 		vagrant destroy -f $*
+
+vag-rebuild-%: vag-destroy-%
 	cd $(VAGDIR) && \
 		vagrant up $*
 
